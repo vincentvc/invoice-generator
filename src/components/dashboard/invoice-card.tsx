@@ -38,14 +38,10 @@ import { useInvoiceStore } from '@/stores/invoice-store';
 import { InvoiceData } from '@/types/invoice';
 import { INVOICE_STATUSES } from '@/lib/constants';
 import { formatCurrency } from '@/lib/currencies';
-import {
-  calcSubtotal,
-  calcTaxAmount,
-  calcItemTax,
-  calcDiscountAmount,
-  calcTotal,
-} from '@/lib/calculations';
+import { computeInvoiceTotal } from '@/lib/analytics';
 import { toast } from '@/hooks/use-toast';
+import { RecurringBadge } from './recurring-badge';
+import { PaymentStatusBar } from './payment-status-bar';
 
 interface InvoiceCardProps {
   invoice: InvoiceData;
@@ -59,18 +55,6 @@ function getStatusBadgeClasses(status: string): string {
 function getStatusLabel(status: string): string {
   const found = INVOICE_STATUSES.find((s) => s.value === status);
   return found?.label ?? status;
-}
-
-function computeTotal(invoice: InvoiceData): number {
-  const subtotal = calcSubtotal(invoice.items);
-  const itemTax = calcItemTax(invoice.items);
-  const taxAmount = calcTaxAmount(subtotal, invoice.taxes);
-  const discountAmount = calcDiscountAmount(
-    subtotal,
-    invoice.discountType,
-    invoice.discountValue
-  );
-  return calcTotal(subtotal, taxAmount, itemTax, discountAmount, invoice.shipping);
 }
 
 function formatDate(dateString: string): string {
@@ -94,7 +78,7 @@ export function InvoiceCard({ invoice }: InvoiceCardProps) {
   const duplicateInvoice = useHistoryStore((s) => s.duplicateInvoice);
   const loadInvoice = useInvoiceStore((s) => s.loadInvoice);
 
-  const total = computeTotal(invoice);
+  const total = computeInvoiceTotal(invoice);
   const clientName = invoice.recipient.name || 'Unnamed Client';
 
   const handleEdit = () => {
@@ -184,6 +168,14 @@ export function InvoiceCard({ invoice }: InvoiceCardProps) {
           <p className="font-heading text-2xl font-bold text-foreground">
             {formatCurrency(total, invoice.currency)}
           </p>
+          <PaymentStatusBar
+            total={total}
+            paidAmount={invoice.paidAmount || 0}
+            currency={invoice.currency}
+          />
+          <div className="mt-2 flex gap-1">
+            <RecurringBadge recurrence={invoice.recurrence} />
+          </div>
         </CardContent>
 
         <CardFooter className="flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">

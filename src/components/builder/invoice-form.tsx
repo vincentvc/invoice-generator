@@ -9,8 +9,11 @@ import { InvoiceDetails } from './form-sections/invoice-details';
 import { LineItems } from './form-sections/line-items';
 import { TotalsPanel } from './form-sections/totals-panel';
 import { NotesTerms } from './form-sections/notes-terms';
+import { RecurrenceSettings } from './form-sections/recurrence-settings';
+import { PaymentRecords } from './form-sections/payment-records';
 import { CurrencySelector } from './currency-selector';
 import { TemplateSwitcher } from './template-switcher';
+import { TemplateCustomizer } from './template-customizer';
 
 export function InvoiceForm() {
   return (
@@ -28,11 +31,16 @@ export function InvoiceForm() {
           <CurrencySelector />
         </div>
         <TemplateSwitcher />
+        <TemplateCustomizer />
         <Separator />
         <LineItems />
         <TotalsPanel />
         <Separator />
         <NotesTerms />
+        <Separator />
+        <RecurrenceSettings />
+        <Separator />
+        <PaymentRecords />
       </div>
     </ScrollArea>
   );

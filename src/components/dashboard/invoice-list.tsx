@@ -5,10 +5,12 @@ import { FileText, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHistoryStore } from '@/stores/history-store';
 import { InvoiceCard } from './invoice-card';
+import { InvoiceTableView } from './invoice-table-view';
 
 export function InvoiceList() {
   const getFilteredInvoices = useHistoryStore((s) => s.getFilteredInvoices);
   const invoices = useHistoryStore((s) => s.invoices);
+  const viewMode = useHistoryStore((s) => s.viewMode);
   const filteredInvoices = getFilteredInvoices();
 
   if (invoices.length === 0) {
@@ -48,6 +50,10 @@ export function InvoiceList() {
         </p>
       </div>
     );
+  }
+
+  if (viewMode === 'list') {
+    return <InvoiceTableView invoices={filteredInvoices} />;
   }
 
   return (

@@ -6,17 +6,22 @@ import { FileText, Sun, Moon, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState } from 'react';
+import { useAuthStore } from '@/stores/auth-store';
+import { UserMenu } from '@/components/auth/user-menu';
 
 const NAV_LINKS = [
   { href: '/invoice', label: 'Create Invoice' },
-  { href: '/templates', label: 'Templates' },
-  { href: '/pricing', label: 'Pricing' },
   { href: '/dashboard', label: 'Dashboard' },
+  { href: '/clients', label: 'Clients' },
+  { href: '/analytics', label: 'Analytics' },
+  { href: '/templates', label: 'Templates' },
 ];
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const status = useAuthStore((s) => s.status);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 no-print">
@@ -54,11 +59,24 @@ export function Header() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <Link href="/invoice" className="hidden sm:block">
-            <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
-              Create Invoice
-            </Button>
-          </Link>
+          {status !== 'loading' && (
+            <>
+              {user ? (
+                <UserMenu />
+              ) : (
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm">Sign In</Button>
+                  </Link>
+                  <Link href="/invoice">
+                    <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                      Create Invoice
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </>
+          )}
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="md:hidden">
@@ -85,11 +103,23 @@ export function Header() {
                     {link.label}
                   </Link>
                 ))}
-                <Link href="/invoice" onClick={() => setMobileOpen(false)} className="mt-4">
-                  <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                    Create Invoice
-                  </Button>
-                </Link>
+                {!user && (
+                  <>
+                    <Link href="/login" onClick={() => setMobileOpen(false)}>
+                      <Button variant="outline" className="w-full">Sign In</Button>
+                    </Link>
+                    <Link href="/signup" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {user && (
+                  <Link href="/settings" onClick={() => setMobileOpen(false)}>
+                    <Button variant="outline" className="w-full">Settings</Button>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>

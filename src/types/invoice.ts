@@ -18,7 +18,11 @@ export interface LineItem {
   taxRate?: number;
 }
 
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+import { RecurrenceConfig } from './recurring';
+import { PaymentRecord } from './payment';
+import { TemplateConfig } from './template-config';
+
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'partial' | 'overdue' | 'cancelled';
 
 export type DiscountType = 'percentage' | 'flat';
 export type TaxType = 'percentage' | 'flat';
@@ -52,6 +56,11 @@ export interface InvoiceData {
   notes: string;
   terms: string;
   template: string;
+  clientId?: string;
+  recurrence: RecurrenceConfig | null;
+  payments: PaymentRecord[];
+  paidAmount: number;
+  templateConfig: TemplateConfig | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -95,4 +104,9 @@ export const DEFAULT_INVOICE: Omit<InvoiceData, 'id' | 'createdAt' | 'updatedAt'
   notes: '',
   terms: '',
   template: 'modern',
+  clientId: undefined,
+  recurrence: null,
+  payments: [],
+  paidAmount: 0,
+  templateConfig: null,
 };

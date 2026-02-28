@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { InvoiceData, LineItem, Address, TaxEntry, DiscountType, DEFAULT_INVOICE, DEFAULT_ADDRESS } from '@/types/invoice';
+import { PaymentRecord } from '@/types/payment';
+import { TemplateConfig } from '@/types/template-config';
 import { calcLineItemAmount } from '@/lib/calculations';
+import { migrateInvoiceData } from '@/lib/migrations';
+import { computeInvoiceTotal } from '@/lib/analytics';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -61,6 +65,14 @@ interface InvoiceStore {
   // Discount
   setDiscountType: (type: DiscountType) => void;
   setDiscountValue: (value: number) => void;
+
+  // Payments
+  addPayment: (payment: Omit<PaymentRecord, 'id'>) => void;
+  removePayment: (id: string) => void;
+  updatePayment: (id: string, updates: Partial<PaymentRecord>) => void;
+
+  // Template config
+  setTemplateConfig: (config: TemplateConfig | null) => void;
 
   // Undo/Redo
   undo: () => void;
@@ -302,6 +314,95 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
   canUndo: () => get().undoState.past.length > 0,
   canRedo: () => get().undoState.future.length > 0,
 
+  addPayment: (paymentData) => {
+    const current = get().invoice;
+    const payment: PaymentRecord = {
+      ...paymentData,
+      id: generateId(),
+    };
+    const newPayments = [...current.payments, payment];
+    const newPaidAmount = newPayments.reduce((sum, p) => sum + p.amount, 0);
+    const total = computeInvoiceTotal(current);
+
+    let newStatus = current.status;
+    if (newPaidAmount >= total) {
+      newStatus = 'paid';
+    } else if (newPaidAmount > 0) {
+      newStatus = 'partial';
+    }
+
+    set({
+      invoice: {
+        ...current,
+        payments: newPayments,
+        paidAmount: newPaidAmount,
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      },
+      undoState: pushToHistory(get().undoState, current),
+    });
+  },
+
+  removePayment: (id) => {
+    const current = get().invoice;
+    const newPayments = current.payments.filter((p) => p.id !== id);
+    const newPaidAmount = newPayments.reduce((sum, p) => sum + p.amount, 0);
+    const total = computeInvoiceTotal(current);
+
+    let newStatus = current.status;
+    if (newPaidAmount >= total && newPayments.length > 0) {
+      newStatus = 'paid';
+    } else if (newPaidAmount > 0) {
+      newStatus = 'partial';
+    } else if (current.status === 'paid' || current.status === 'partial') {
+      newStatus = 'sent';
+    }
+
+    set({
+      invoice: {
+        ...current,
+        payments: newPayments,
+        paidAmount: newPaidAmount,
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      },
+      undoState: pushToHistory(get().undoState, current),
+    });
+  },
+
+  updatePayment: (id, updates) => {
+    const current = get().invoice;
+    const newPayments = current.payments.map((p) =>
+      p.id === id ? { ...p, ...updates } : p
+    );
+    const newPaidAmount = newPayments.reduce((sum, p) => sum + p.amount, 0);
+    const total = computeInvoiceTotal(current);
+
+    let newStatus = current.status;
+    if (newPaidAmount >= total) {
+      newStatus = 'paid';
+    } else if (newPaidAmount > 0) {
+      newStatus = 'partial';
+    }
+
+    set({
+      invoice: {
+        ...current,
+        payments: newPayments,
+        paidAmount: newPaidAmount,
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      },
+    });
+  },
+
+  setTemplateConfig: (config) => {
+    const current = get().invoice;
+    set({
+      invoice: { ...current, templateConfig: config, updatedAt: new Date().toISOString() },
+    });
+  },
+
   clearInvoice: () => {
     const current = get().invoice;
     set({
@@ -311,8 +412,9 @@ export const useInvoiceStore = create<InvoiceStore>((set, get) => ({
   },
 
   loadInvoice: (invoice) => {
+    const migrated = migrateInvoiceData(invoice);
     set({
-      invoice,
+      invoice: migrated,
       undoState: { past: [], future: [] },
     });
   },

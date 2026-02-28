@@ -1,5 +1,6 @@
 import { InvoiceData } from '@/types/invoice';
 import { TemplateType } from '@/types/template';
+import { TemplateConfig } from '@/types/template-config';
 import { ModernPdf } from './templates/modern-pdf';
 import { ClassicPdf } from './templates/classic-pdf';
 import { MinimalPdf } from './templates/minimal-pdf';
@@ -14,9 +15,10 @@ import { BrandedPdf } from './templates/branded-pdf';
 interface PdfDocumentProps {
   invoice: InvoiceData;
   template: TemplateType;
+  config?: TemplateConfig;
 }
 
-const TEMPLATE_MAP: Record<TemplateType, React.ComponentType<{ invoice: InvoiceData }>> = {
+const TEMPLATE_MAP: Record<TemplateType, React.ComponentType<{ invoice: InvoiceData; config?: TemplateConfig }>> = {
   modern: ModernPdf,
   classic: ClassicPdf,
   minimal: MinimalPdf,
@@ -29,7 +31,7 @@ const TEMPLATE_MAP: Record<TemplateType, React.ComponentType<{ invoice: InvoiceD
   branded: BrandedPdf,
 };
 
-export function PdfDocument({ invoice, template }: PdfDocumentProps) {
+export function PdfDocument({ invoice, template, config }: PdfDocumentProps) {
   const TemplateComponent = TEMPLATE_MAP[template] ?? ModernPdf;
-  return <TemplateComponent invoice={invoice} />;
+  return <TemplateComponent invoice={invoice} config={config} />;
 }

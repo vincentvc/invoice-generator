@@ -5,16 +5,22 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHistoryStore } from '@/stores/history-store';
+import { useClientStore } from '@/stores/client-store';
+import { useRecurringCheck } from '@/hooks/use-recurring-check';
 import { DashboardFilters } from './dashboard-filters';
 import { InvoiceList } from './invoice-list';
 
 export function DashboardPage() {
   const loadInvoices = useHistoryStore((s) => s.loadInvoices);
+  const loadClients = useClientStore((s) => s.loadClients);
   const invoices = useHistoryStore((s) => s.invoices);
 
   useEffect(() => {
     loadInvoices();
-  }, [loadInvoices]);
+    loadClients();
+  }, [loadInvoices, loadClients]);
+
+  useRecurringCheck();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

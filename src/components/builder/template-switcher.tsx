@@ -3,6 +3,7 @@
 import { Lock } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
 import { useInvoiceStore } from '@/stores/invoice-store';
+import { useTemplateConfigStore } from '@/stores/template-config-store';
 import { TEMPLATES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { TemplateType } from '@/types/template';
@@ -13,6 +14,7 @@ export function TemplateSwitcher() {
   const isPremiumUser = useUIStore((s) => s.isPremiumUser);
   const setPremiumModalOpen = useUIStore((s) => s.setPremiumModalOpen);
   const updateField = useInvoiceStore((s) => s.updateField);
+  const resetToPreset = useTemplateConfigStore((s) => s.resetToPreset);
 
   function handleSelect(templateId: TemplateType, isPremium: boolean) {
     if (isPremium && !isPremiumUser) {
@@ -21,6 +23,7 @@ export function TemplateSwitcher() {
     }
     setActiveTemplate(templateId);
     updateField('template', templateId);
+    resetToPreset(templateId);
   }
 
   return (

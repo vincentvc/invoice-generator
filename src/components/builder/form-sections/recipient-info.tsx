@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useInvoiceStore } from '@/stores/invoice-store';
+import { ClientAutocomplete } from './client-autocomplete';
 
 export function RecipientInfo() {
   const recipient = useInvoiceStore((s) => s.invoice.recipient);
@@ -18,16 +19,7 @@ export function RecipientInfo() {
     <div className="space-y-3">
       <h3 className="font-heading text-sm font-semibold text-foreground">Bill To</h3>
       <div className="grid gap-3">
-        <div>
-          <Label htmlFor="recipient-name" className="text-xs">Client Name</Label>
-          <Input
-            id="recipient-name"
-            placeholder="Client or Business Name"
-            value={recipient.name}
-            onChange={(e) => updateRecipient('name', e.target.value)}
-            className="mt-1"
-          />
-        </div>
+        <ClientAutocomplete />
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label htmlFor="recipient-email" className="text-xs">Email</Label>

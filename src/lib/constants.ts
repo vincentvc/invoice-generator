@@ -13,9 +13,26 @@ export const PAYMENT_TERMS = [
 export const INVOICE_STATUSES = [
   { value: 'draft', label: 'Draft', color: 'bg-slate-100 text-slate-700' },
   { value: 'sent', label: 'Sent', color: 'bg-blue-100 text-blue-700' },
+  { value: 'partial', label: 'Partial', color: 'bg-amber-100 text-amber-700' },
   { value: 'paid', label: 'Paid', color: 'bg-emerald-100 text-emerald-700' },
   { value: 'overdue', label: 'Overdue', color: 'bg-red-100 text-red-700' },
   { value: 'cancelled', label: 'Cancelled', color: 'bg-gray-100 text-gray-500' },
+] as const;
+
+export const PAYMENT_METHODS = [
+  { value: 'cash', label: 'Cash' },
+  { value: 'check', label: 'Check' },
+  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'paypal', label: 'PayPal' },
+  { value: 'other', label: 'Other' },
+] as const;
+
+export const RECURRENCE_FREQUENCIES = [
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'quarterly', label: 'Quarterly' },
+  { value: 'yearly', label: 'Yearly' },
 ] as const;
 
 export const TEMPLATES: Template[] = [

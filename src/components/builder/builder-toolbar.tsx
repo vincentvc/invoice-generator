@@ -1,6 +1,6 @@
 'use client';
 
-import { Download, Image, Printer, Share2, Trash2, Undo2, Redo2, Save } from 'lucide-react';
+import { Download, Image, Printer, Share2, Trash2, Undo2, Redo2, Save, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,9 +19,12 @@ import {
 import { useInvoiceStore } from '@/stores/invoice-store';
 import { useHistoryStore } from '@/stores/history-store';
 import { useUIStore } from '@/stores/ui-store';
+import { useTemplateConfigStore } from '@/stores/template-config-store';
 import { usePngExport } from '@/hooks/use-png-export';
 import { useShareLink } from '@/hooks/use-share-link';
 import { useToast } from '@/hooks/use-toast';
+import { computeInvoiceTotal } from '@/lib/analytics';
+import { formatCurrency } from '@/lib/currencies';
 import { useState } from 'react';
 
 export function BuilderToolbar() {
@@ -34,6 +37,7 @@ export function BuilderToolbar() {
   const saveInvoice = useHistoryStore((s) => s.saveInvoice);
   const isClearConfirmOpen = useUIStore((s) => s.isClearConfirmOpen);
   const setClearConfirmOpen = useUIStore((s) => s.setClearConfirmOpen);
+  const config = useTemplateConfigStore((s) => s.config);
   const { exportPng, isExporting } = usePngExport();
   const [isGenerating, setIsGenerating] = useState(false);
   const { generateShareLink, copyToClipboard } = useShareLink();
@@ -45,7 +49,7 @@ export function BuilderToolbar() {
       const { pdf } = await import('@react-pdf/renderer');
       const { PdfDocument } = await import('@/components/pdf/pdf-document');
       const template = (invoice.template || 'modern') as 'modern' | 'classic' | 'minimal' | 'corporate' | 'creative' | 'retro' | 'bold' | 'pastel' | 'tech' | 'branded';
-      const blob = await pdf(<PdfDocument invoice={invoice} template={template} />).toBlob();
+      const blob = await pdf(<PdfDocument invoice={invoice} template={template} config={config} />).toBlob();
       const url = URL.createObjectURL(blob);
       const link = window.document.createElement('a');
       link.href = url;
@@ -151,6 +155,26 @@ export function BuilderToolbar() {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Copy share link</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="sm" onClick={() => {
+                const recipientEmail = invoice.recipient.email;
+                if (!recipientEmail) {
+                  toast({ title: 'No email', description: 'Add a recipient email address first' });
+                  return;
+                }
+                const total = computeInvoiceTotal(invoice);
+                const subject = encodeURIComponent(`Invoice ${invoice.invoiceNumber} from ${invoice.sender.name || 'InvoiceForge'}`);
+                const body = encodeURIComponent(`Hello ${invoice.recipient.name || ''},\n\nPlease find attached invoice ${invoice.invoiceNumber}.\n\nAmount: ${formatCurrency(total, invoice.currency)}\nDue Date: ${invoice.dueDate}\n\nBest regards,\n${invoice.sender.name || ''}`);
+                window.open(`mailto:${recipientEmail}?subject=${subject}&body=${body}`, '_blank');
+              }}>
+                <Mail className="mr-1.5 h-4 w-4" />
+                Email
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Email invoice</TooltipContent>
           </Tooltip>
 
           <div className="mx-1 h-6 w-px bg-border" />
