@@ -1,0 +1,278 @@
+# Invoice Generator — Project Blueprint
+
+## Project Overview
+
+A modern, feature-rich invoice generation web app that **surpasses invoice-generator.com** in design, UX, and functionality. The platform monetizes through:
+- **Ad-supported free tier** (sidebar + banner ads)
+- **Paid subscription (Pro)** — ad-free, unlocks premium features
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React + Vite (or Next.js for SSR/SEO) |
+| Styling | Tailwind CSS + shadcn/ui |
+| State | Zustand or React Context |
+| PDF Generation | `@react-pdf/renderer` or `jsPDF` + `html2canvas` |
+| Auth | Clerk or Supabase Auth |
+| Backend/DB | Supabase (Postgres + Storage) |
+| Payments | Stripe |
+| Ads | Google AdSense |
+| Hosting | Vercel or Netlify |
+
+---
+
+## Core Features (Free Tier)
+
+### Invoice Builder
+- [x] Live real-time preview (split-pane: editor left, preview right)
+- [x] Add/remove/reorder line items (drag-and-drop)
+- [x] Custom fields (quantity, rate, description, tax per item)
+- [x] Multiple tax support (GST, VAT, HST, custom %)
+- [x] Discount support (flat or percentage)
+- [x] Shipping fee field
+- [x] Currency selector (150+ currencies with symbols)
+- [x] Auto-calculated subtotal, tax, discount, total
+- [x] Invoice number with auto-increment
+- [x] Issue date & due date pickers
+- [x] Payment terms dropdown (Net 7, Net 30, Due on Receipt, custom)
+- [x] Notes / Terms & Conditions field
+- [x] Upload company logo
+- [x] From / Bill To / Ship To sections
+- [x] Download as PDF (free, with subtle watermark or branding)
+- [x] Download as PNG
+- [x] Print directly
+- [x] Share via link (view-only)
+
+### UX Enhancements Over Competitors
+- Split-screen live preview (no page reload)
+- Autosave to localStorage
+- Keyboard shortcuts (⌘+S to save, ⌘+P to print, etc.)
+- Undo/redo history
+- Mobile-responsive builder
+- One-click "Clear All" with confirmation
+- Smart client autocomplete (remembers past entries)
+
+---
+
+## Pro / Paid Features
+
+| Feature | Free | Pro |
+|---------|------|-----|
+| Ad-free experience | ✗ | ✓ |
+| Saved invoices (cloud) | 3 max | Unlimited |
+| Multiple invoice templates | 1 | 10+ |
+| Custom branding / colors | Basic | Full |
+| Client management CRM | ✗ | ✓ |
+| Recurring invoices | ✗ | ✓ |
+| Payment tracking (Paid/Unpaid/Overdue) | ✗ | ✓ |
+| Expense tracker | ✗ | ✓ |
+| Email invoices to clients | ✗ | ✓ |
+| CSV/Excel export | ✗ | ✓ |
+| Multi-currency auto-conversion | ✗ | ✓ |
+| Team collaboration (multi-user) | ✗ | ✓ |
+| Analytics dashboard | ✗ | ✓ |
+| API access | ✗ | ✓ |
+| Remove PDF watermark | ✗ | ✓ |
+
+**Pricing Model:**
+- Free: $0/month
+- Pro: $9/month or $79/year
+- Business: $29/month (teams, up to 5 seats)
+
+---
+
+## Invoice Templates (Pro)
+
+Design 10+ distinct templates:
+1. **Classic** — Clean, professional, black & white
+2. **Modern** — Bold header, accent color, minimal
+3. **Creative** — Color blocks, artistic layout
+4. **Minimal** — Ultra-sparse, luxury feel
+5. **Corporate** — Formal, letterhead-style
+6. **Retro** — Vintage invoice aesthetic
+7. **Bold** — Dark header, high contrast
+8. **Pastel** — Soft colors for creatives/freelancers
+9. **Tech** — Monospace font, dark mode PDF
+10. **Branded** — User's own colors/fonts fully applied
+
+---
+
+## Monetization Architecture
+
+### Ads (Free Tier)
+- **Sidebar ads**: Fixed 300×250 or 160×600 AdSense units
+- **Top banner**: 728×90 leaderboard (desktop)
+- **Between-section ads**: Native-style inside builder (non-intrusive)
+- Lazy-load ads to not hurt performance
+- Ad slots clearly separated from UI, never blocking workflow
+
+### Subscriptions (Pro)
+- Stripe Checkout for payment
+- Stripe Customer Portal for billing management
+- Webhook-driven entitlement in Supabase
+- 7-day free trial on Pro
+
+---
+
+## Design Direction
+
+**Aesthetic:** Clean, modern SaaS — think Notion × Linear × Stripe
+- **Primary font:** `DM Sans` (headings) + `Inter` (body)
+- **Color palette:** Deep navy `#0F172A` accents with electric blue `#3B82F6` CTA, white backgrounds
+- **Layout:** 60/40 split-pane builder on desktop, stacked on mobile
+- **Micro-interactions:** Smooth field focus transitions, line item fade-in, PDF preview slide-in
+- **Dark mode:** Full support via Tailwind `dark:` classes
+
+---
+
+## Page Structure
+
+```
+/                    → Landing page (hero, features, pricing, CTA)
+/invoice             → Main invoice builder (core product)
+/templates           → Template gallery
+/dashboard           → Pro: saved invoices, clients, analytics
+/clients             → Pro: CRM / client management
+/settings            → Account, branding, preferences
+/pricing             → Pricing page
+/login               → Auth
+/blog                → SEO content (invoice tips, templates)
+```
+
+---
+
+## SEO Strategy
+
+- Target keywords: "free invoice generator", "online invoice maker", "invoice template PDF"
+- Blog with high-value articles (invoice templates by country, freelancer finance tips)
+- Landing pages per niche: "invoice generator for freelancers", "contractor invoice template"
+- Fast Lighthouse score (>90 performance, >95 SEO)
+- Schema markup for SoftwareApplication
+
+---
+
+## File Structure
+
+```
+invoice-generator/
+├── public/
+│   └── templates/          # PDF template assets
+├── src/
+│   ├── components/
+│   │   ├── builder/        # InvoiceForm, LineItems, TotalsPanel
+│   │   ├── preview/        # LivePreview, PDFRenderer
+│   │   ├── templates/      # Template components
+│   │   ├── ads/            # AdSidebar, AdBanner
+│   │   ├── dashboard/      # SavedInvoices, Analytics
+│   │   └── ui/             # Shared UI components
+│   ├── hooks/              # useInvoice, useAutoSave, useUndo
+│   ├── stores/             # Zustand stores
+│   ├── lib/                # Stripe, Supabase, PDF utils
+│   ├── pages/              # Route-level components
+│   └── styles/             # Global CSS, Tailwind config
+├── supabase/
+│   ├── migrations/         # DB schema
+│   └── functions/          # Edge functions (webhooks)
+├── CLAUDE.md               # ← You are here
+├── .env.example
+└── README.md
+```
+
+---
+
+## Database Schema (Supabase)
+
+```sql
+-- Users (via Supabase Auth)
+profiles (id, email, name, plan, stripe_customer_id, created_at)
+
+-- Invoices
+invoices (id, user_id, invoice_number, status, data jsonb, template, created_at, updated_at)
+
+-- Clients
+clients (id, user_id, name, email, address, phone, notes)
+
+-- Subscriptions
+subscriptions (id, user_id, stripe_subscription_id, plan, status, current_period_end)
+```
+
+---
+
+## Development Phases
+
+### Phase 1 — MVP (Week 1–2)
+- [ ] Invoice builder UI with live preview
+- [ ] PDF download (free, watermarked)
+- [ ] LocalStorage autosave
+- [ ] Landing page
+- [ ] AdSense integration
+
+### Phase 2 — Auth + Cloud (Week 3–4)
+- [ ] Supabase auth (email + Google OAuth)
+- [ ] Save invoices to cloud (3 free)
+- [ ] Basic dashboard
+
+### Phase 3 — Pro Features (Week 5–6)
+- [ ] Stripe subscriptions
+- [ ] Pro templates (10+)
+- [ ] Client management
+- [ ] Email invoices (Resend or SendGrid)
+- [ ] Ad-free experience for Pro
+
+### Phase 4 — Growth (Week 7–8)
+- [ ] Blog / SEO content
+- [ ] Analytics dashboard
+- [ ] Recurring invoices
+- [ ] Mobile PWA support
+- [ ] Referral program
+
+---
+
+## Environment Variables
+
+```env
+# Supabase
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Stripe
+VITE_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Google AdSense
+VITE_ADSENSE_CLIENT_ID=
+
+# Email
+RESEND_API_KEY=
+
+# App
+VITE_APP_URL=http://localhost:5173
+```
+
+---
+
+## Competitive Advantages Over invoice-generator.com
+
+| Feature | invoice-generator.com | This App |
+|---------|----------------------|----------|
+| Live split-pane preview | ✗ | ✓ |
+| Drag-and-drop line items | ✗ | ✓ |
+| Dark mode | ✗ | ✓ |
+| Client CRM | ✗ | ✓ |
+| Payment tracking | ✗ | ✓ |
+| Mobile-friendly builder | Partial | ✓ Full |
+| Multiple templates | 1 | 10+ |
+| Undo/redo | ✗ | ✓ |
+| Keyboard shortcuts | ✗ | ✓ |
+| Recurring invoices | ✗ | ✓ |
+| Analytics | ✗ | ✓ |
+| Share via link | ✗ | ✓ |
+
+---
+
+*Last updated: February 2026*
