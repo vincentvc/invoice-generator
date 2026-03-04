@@ -99,7 +99,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
 
     set({ error: null });
-    const { error } = await supabase.auth.signInWithOAuth({ provider });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
 
     if (error) {
       set({ error: error.message });
